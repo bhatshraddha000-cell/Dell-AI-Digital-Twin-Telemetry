@@ -12,7 +12,7 @@ Built as part of the **Dell Hackathon**, this project demonstrates how a convers
 
 Real-time tracking of thermal boundaries, CPU workload gradients, and battery discharge rates inside an interactive modal overlay.
 
-![Telemetry Graph Analysis](assets/Telemetry%20Graph%20Analysis.png)
+![Telemetry Graph Analysis](assets/Telemetry%20Graph%20Analysis.jpeg)
 
 ---
 
@@ -20,7 +20,7 @@ Real-time tracking of thermal boundaries, CPU workload gradients, and battery di
 
 Calculates metric slopes over rolling windows to forecast device health while displaying full BM25 dataset retrieval traces inside the Transparency Log.
 
-![AI Predictions & Transparency Log](assets/AI%20Predictions%20%26%20Transparency%20Log.png)
+![AI Predictions & Transparency Log](assets/AI%20Predictions%20%26%20Transparency%20Log.jpeg)
 
 ---
 
@@ -28,7 +28,7 @@ Calculates metric slopes over rolling windows to forecast device health while di
 
 Simulates hypothetical stress scenarios (e.g., CPU spikes, high workloads) with inline trajectory graphs and real-time lip-sync avatar feedback in an enterprise dark theme.
 
-![Simulation Mode & Avatar Feedback](assets/Simulation.png)
+![Simulation Mode & Avatar Feedback](assets/Simulation.jpeg)
 
 ---
 
