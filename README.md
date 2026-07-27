@@ -6,6 +6,32 @@ Built as part of the **Dell Hackathon**, this project demonstrates how a convers
 
 ---
 
+## 📸 Interface & Feature Highlights
+
+### 1. Dynamic Telemetry Engine & Interactive Graph
+
+Real-time tracking of thermal boundaries, CPU workload gradients, and battery discharge rates inside an interactive modal overlay.
+
+![Telemetry Graph Analysis](assets/Telemetry%20Graph%20Analysis.png)
+
+---
+
+### 2. AI Predictive Failure Analysis & Explainable AI (XAI)
+
+Calculates metric slopes over rolling windows to forecast device health while displaying full BM25 dataset retrieval traces inside the Transparency Log.
+
+![AI Predictions & Transparency Log](assets/AI%20Predictions%20%26%20Transparency%20Log.png)
+
+---
+
+### 3. "What-If" Sandbox Simulation & Dark Mode Interface
+
+Simulates hypothetical stress scenarios (e.g., CPU spikes, high workloads) with inline trajectory graphs and real-time lip-sync avatar feedback in an enterprise dark theme.
+
+![Simulation Mode & Avatar Feedback](assets/Simulation.png)
+
+---
+
 ## 🚀 Key Features
 
 - **Real-Time Telemetry Streaming:** Streams and visualizes CPU workload, thermal core readings, fan RPMs, battery depletion, and disk health metrics.
@@ -52,12 +78,72 @@ dell-hackathon/
 ├── .env                                   # API Keys & Secrets Configuration
 ├── dell_like_laptop_telemetry_1000_rows-1.csv # Primary Synthetic Telemetry Dataset
 └── pom.xml                                # Maven Dependencies & Build File
-⚙️ Setup and InstallationPrerequisitesJava Development Kit (JDK 17 or higher)Apache Maven 3.8+Groq API Key (Obtain from console.groq.com)1. Clone the RepositoryBashgit clone [https://github.com/your-username/dell-twin-ai.git](https://github.com/your-username/dell-twin-ai.git)
-cd dell-hackathon
-2. Configure Environment VariablesCreate a .env file in the root directory of the project:Code snippetGROQ_API_KEY=gsk_your_actual_groq_api_key_here
-SUPABASE_URL=[https://your-supabase-project.supabase.co](https://your-supabase-project.supabase.co)
-SUPABASE_KEY=your_supabase_anon_key
-3. Build the ProjectBuild the Maven dependencies and compile the Java source files:Bashmvn clean install
-4. Run the ApplicationLaunch the Spring Boot web application:Bashmvn spring-boot:run
-Once started, open your web browser and navigate to:👉 http://localhost:8080🎯 Example Usage & Queries1. General Diagnostics"Why is my laptop running so hot?""Why is my battery draining fast?""Is my NVMe disk health normal?"2. "What-If" Simulations"What if CPU usage increases to 90%?""Simulate high workload rendering while on battery power."3. Visual Charts & Trends"Show me the performance graph"Or click "Launch Chart" inside the Quick Insights sidebar panel.4. Failure PredictionClick "View AI Predictions →" in the sidebar to generate slope-based predictive failure analysis.🏆 Evaluation Criteria AlignmentObjective / MetricImplementation DetailSynthetic Dataset Realism1,000 continuous time-series rows capturing correlated thermals, fan speeds, CPU load, and battery drain.Holistic System ReasoningJava Rule Engine combined with Llama 3.3 to analyze cross-component interactions.What-If SimulationActive parameter override matrix calculating thermal and power projections.Explainable AI (XAI)Collapsible UI drawer displaying exact matching BM25 dataset traces for full transparency.📜 LicenseDistributed under the MIT License. See LICENSE for more information.
 ```
+
+# ⚙️ Setup and Installation
+
+## Prerequisites
+
+- Java Development Kit (JDK 17 or higher)
+- Apache Maven 3.8+
+- Groq API Key (Obtain from [console.groq.com](https://console.groq.com))
+
+## 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/dell-twin-ai.git
+cd dell-hackathon
+```
+
+## 2. Configure Environment Variables
+
+Create a `.env` file in the root directory of the project:
+
+```
+GROQ_API_KEY=gsk_your_actual_groq_api_key_here
+SUPABASE_URL=https://your-supabase-project.supabase.co
+SUPABASE_KEY=your_supabase_anon_key
+```
+
+## 3. Build the Project
+
+Build the Maven dependencies and compile the Java source files:
+
+```bash
+mvn clean install
+```
+
+## 4. Run the Application
+
+Launch the Spring Boot web application:
+
+```bash
+mvn spring-boot:run
+```
+
+Once started, open your web browser and navigate to:  
+👉 **http://localhost:8080**
+
+---
+
+# 🎯 Example Usage & Queries
+
+### 1. General Diagnostics
+
+- "Why is my laptop running so hot?"
+- "Why is my battery draining fast?"
+- "Is my NVMe disk health normal?"
+
+### 2. "What-If" Simulations
+
+- "What if CPU usage increases to 90%?"
+- "Simulate high workload rendering while on battery power."
+
+### 3. Visual Charts & Trends
+
+- "Show me the performance graph"
+- Or click **"Launch Chart"** inside the Quick Insights sidebar panel.
+
+### 4. Failure Prediction
+
+Click **"Predict Future"** in the sidebar to generate slope-based predictive failure analysis.
