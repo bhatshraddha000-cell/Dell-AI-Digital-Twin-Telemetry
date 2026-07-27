@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dell AI Digital Twin - Telemetry Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- THEME VARIABLES (Light default) --- */
+        :root {
+            --bg-primary: #F8FAFC;
+            --bg-chat: #F8FAFC;
+            --bg-header: #061424;
+            --bg-sidebar: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --bg-bubble-user: #FFFFFF;
+            --bg-bubble-assistant: #EEF2FF;
+            --bg-input: #F8FAFC;
+            --bg-input-bar: #FFFFFF;
+            --bg-typing: #FFFFFF;
+            --bg-toast: #1A202C;
+            --bg-modal: #FFFFFF;
+            --bg-evidence: #F1F5F9;
+            --bg-evidence-content: #F8FAFC;
+            --bg-avatar: #1A202C;
+            
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #64748B;
+            --text-white: #FFFFFF;
+            --text-header: #FFFFFF;
+            --text-slate-300: #CBD5E1;
+            --text-slate-400: #94A3B8;
+            --text-slate-500: #64748B;
+            --text-slate-600: #475569;
+            --text-slate-700: #334155;
+            --text-slate-800: #1E293B;
+            --text-slate-900: #0F172A;
+            --text-blue-600: #2563EB;
+            --text-blue-700: #1D4ED8;
+            --text-assistant: #2563EB;
+            --text-amber-600: #D97706;
+            --text-emerald-600: #059669;
+            --text-rose-600: #DC2626;
+            --text-indigo-600: #4F46E5;
+            
+            --border-color: #E2E8F0;
+            --border-dark: #1E293B;
+            --border-light: #F1F5F9;
+            
+            --shadow-color: rgba(0,0,0,0.05);
+            --shadow-lg: rgba(0,0,0,0.08);
+            --shadow-xl: rgba(0,0,0,0.1);
+            
+            --accent: #0076CE;
+            --accent-hover: #005A9E;
+            --accent-light: #E8F0FE;
+            
+            --glass-bg: rgba(255,255,255,0.5);
+            --glass-border: rgba(255,255,255,0.2);
+        }
+        
+        /* --- DARK THEME --- */
+        [data-theme="dark"] {
+            --bg-primary: #0F172A;
+            --bg-chat: #0F172A;
+            --bg-header: #0A0F1E;
+            --bg-sidebar: #111827;
+            --bg-card: #1E293B;
+            --bg-bubble-user: #1E293B;
+            --bg-bubble-assistant: #1E293B;
+            --bg-input: #1E293B;
+            --bg-input-bar: #111827;
+            --bg-typing: #1E293B;
+            --bg-toast: #1A202C;
+            --bg-modal: #1E293B;
+            --bg-evidence: #111827;
+            --bg-evidence-content: #0F172A;
+            --bg-avatar: #1A202C;
+            
+            --text-primary: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --text-white: #FFFFFF;
+            --text-header: #FFFFFF;
+            --text-slate-300: #94A3B8;
+            --text-slate-400: #94A3B8;
+            --text-slate-500: #94A3B8;
+            --text-slate-600: #CBD5E1;
+            --text-slate-700: #E2E8F0;
+            --text-slate-800: #F1F5F9;
+            --text-slate-900: #F8FAFC;
+            --text-blue-600: #60A5FA;
+            --text-blue-700: #93BBFC;
+            --text-assistant: #93BBFC;
+            --text-amber-600: #FBBF24;
+            --text-emerald-600: #34D399;
+            --text-rose-600: #F87171;
+            --text-indigo-600: #818CF8;
+            
+            --border-color: #1E293B;
+            --border-dark: #0F172A;
+            --border-light: #1E293B;
+            
+            --shadow-color: rgba(0,0,0,0.3);
+            --shadow-lg: rgba(0,0,0,0.4);
+            --shadow-xl: rgba(0,0,0,0.5);
+            
+            --accent: #3B82F6;
+            --accent-hover: #2563EB;
+            --accent-light: #1E3A5F;
+            
+            --glass-bg: rgba(15,23,42,0.6);
+            --glass-border: rgba(255,255,255,0.06);
+        }
+        /* Base styles for the entire application */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+        /* Avatar pulse animation */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .avatar-pulse {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+        /* Fade-in animation for messages */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        /* Custom toggle switch for theme */
+        .theme-toggle {
+            width: 40px;
+            height: 22px;
+            border-radius: 11px;
+            background: var(--border-color);
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            border: none;
+            transition: background 0.3s ease;
+        }
+        .theme-toggle .knob {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .theme-toggle.active {
+            background: var(--accent);
+        }
+        .theme-toggle.active .knob {
+            transform: translateX(18px);
+        }
+        /* Utility classes for consistent transitions */
+        .transition-theme {
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Prediction card styles */
+        .card-prediction {
+            border-left: 4px solid var(--accent);
+        }
+        .card-prediction .issue-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+        }
+        .card-prediction .issue-item::before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .recommendation-list {
+            counter-reset: step;
+            list-style: none;
+            padding-left: 0;
+        }
+        .recommendation-list li {
+            padding: 4px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        .recommendation-list li::before {
+            content: counter(step) ".";
+            counter-increment: step;
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Status and risk badges */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-excellent { background: #10B981; color: white; }
+        .status-good { background: #3B82F6; color: white; }
+        .status-warning { background: #F59E0B; color: white; }
+        .status-critical { background: #EF4444; color: white; }
+        .risk-low { background: #10B981; color: white; }
+        .risk-medium { background: #F59E0B; color: white; }
+        .risk-high { background: #EF4444; color: white; }
+
+        /* --- Wi-Fi Standing Bars --- */
+        .wifi-bar {
+            transition: fill 0.3s ease, opacity 0.3s ease;
+        }
+        .wifi-bar.active {
+            fill: #48BB78;
+            opacity: 1;
+        }
+        .wifi-bar.inactive {
+            fill: #64748B;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden antialiased transition-theme">
+
+    <!-- ===== HEADER ===== -->
+    <header class="bg-[#061424] h-16 border-b-2 border-[#0076CE] flex items-center justify-between px-6 z-40 shadow-md flex-shrink-0 transition-theme" style="background: var(--bg-header); border-color: var(--accent);">
+        <!-- Branding and title -->
+        <div class="flex items-center gap-3">
+            <div class="bg-[#0076CE] text-white p-1.5 rounded-md font-bold text-sm tracking-wider">DELL</div>
+            <div class="h-5 w-[1px] bg-slate-700"></div>
+            <div class="text-white font-semibold text-lg flex items-center gap-2">
+                AI Twin <span class="text-xs bg-cyan-500/20 text-cyan-400 font-mono px-2 py-0.5 rounded border border-cyan-500/30">v2.0-RAG</span>
+            </div>
+            <span class="hidden md:inline text-slate-400 text-xs font-normal ml-2">Laptop Telemetry Predictive Sandbox</span>
+        </div>
+        
+        <!-- Right side header: status indicators, Wi-Fi bars, DB info -->
+        <div class="hidden sm:flex items-center gap-6">
+            <div class="flex items-center gap-2 text-xs text-slate-300 bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700/50 transition-theme" style="background: rgba(255,255,255,0.05); border-color: var(--border-color);">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                <span class="font-medium text-emerald-400">Twin Streaming Active</span>
+            </div>
+            
+            <!-- Wi-Fi standing bars (signal strength indicator) -->
+            <div class="flex items-center gap-1.5 text-xs text-slate-300 bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700/50 transition-theme" style="background: rgba(255,255,255,0.05); border-color: var(--border-color);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="16" width="3" height="6" rx="0.5" class="wifi-bar inactive" data-level="1" />
+                    <rect x="8" y="12" width="3" height="10" rx="0.5" class="wifi-bar inactive" data-level="2" />
+                    <rect x="13" y="8" width="3" height="14" rx="0.5" class="wifi-bar inactive" data-level="3" />
+                    <rect x="18" y="4" width="3" height="18" rx="0.5" class="wifi-bar inactive" data-level="4" />
+                </svg>
+                <span id="wifiLabel" class="text-xs font-medium text-slate-400 ml-1">Wi‑Fi</span>
+            </div>
+
+            <!-- Database record count -->
+            <div class="text-slate-400 text-[11px] font-medium flex items-center gap-1.5 transition-theme" style="color: var(--text-muted);">
+                <i data-lucide="database" class="w-3.5 h-3.5 text-[#0076CE]"></i>
+                <span>1,000 Archive Node Index</span>
+            </div>
+        </div>
+
+        <!-- Rightmost: theme toggle, avatar toggle, user avatar -->
+        <div class="flex items-center gap-4">
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <div class="knob"></div>
+            </button>
+            
+            <div class="flex items-center gap-2 bg-slate-800/40 px-3 py-1.5 rounded-lg border border-slate-700/40 transition-theme" style="background: rgba(255,255,255,0.04); border-color: var(--border-color);">
+                <span class="text-xs text-slate-400 font-medium hidden md:inline transition-theme" style="color: var(--text-muted);">Avatar Feedback</span>
+                <div class="w-10 h-6 bg-slate-700 rounded-full p-0.5 cursor-pointer transition-colors duration-200" id="avatarToggle">
+                    <div class="w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200" id="avatarKnob"></div>
+                </div>
+            </div>
+            <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm tracking-wide border border-blue-400 shadow-sm shadow-blue-500/20">
+                DE
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== BODY ===== -->
+    <div class="flex flex-1 overflow-hidden w-full">
+        
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="w-72 border-r p-5 hidden lg:flex flex-col gap-6 overflow-y-auto flex-shrink-0 shadow-sm transition-theme" style="background: var(--bg-sidebar); border-color: var(--border-color);">
+            <!-- Session reference -->
+            <div class="rounded-xl p-4 transition-theme" style="background: var(--bg-card); border: 1px solid var(--border-color);">
+                <div class="text-slate-400 text-[11px] font-bold tracking-wider uppercase mb-2 flex items-center gap-1.5 transition-theme" style="color: var(--text-muted);">
+                    <i data-lucide="cpu" class="w-3 h-3 text-slate-500"></i> Active Session Reference
+                </div>
+                <div class="code-font text-xs font-semibold tracking-tight px-2.5 py-1.5 rounded-lg shadow-sm transition-theme" style="color: var(--text-primary); background: var(--bg-sidebar); border: 1px solid var(--border-color);">
+                    #A12B-7C4D-RAG
+                </div>
+                <div class="text-slate-500 text-[11px] font-medium mt-2 flex items-center gap-1 transition-theme" style="color: var(--text-muted);">
+                    <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+                    <span>Initialized: <span id="sessionTime" class="font-semibold text-slate-700 transition-theme" style="color: var(--text-primary);">--:-- --</span></span>
+                </div>
+            </div>
+            
+            <!-- Streaming telemetry metrics (CPU, Temp, Battery) with progress bars -->
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold tracking-wider uppercase mb-1 transition-theme" style="color: var(--text-muted);">
+                    <span class="flex items-center gap-1.5"><i data-lucide="activity" class="w-3 h-3 text-slate-500"></i> Streaming Telemetry</span>
+                    <button id="viewMetricTrendBtn" class="text-[10px] text-blue-600 hover:text-blue-800 flex items-center gap-0.5 font-bold bg-blue-50 px-2 py-1 rounded-lg transition transition-theme" style="background: var(--bg-evidence); color: var(--text-blue-600);">
+                        <i data-lucide="line-chart" class="w-2.5 h-2.5"></i> Launch Chart
+                    </button>
+                </div>
+                
+                 <!-- CPU -->
+                <div class="p-3 rounded-xl shadow-xs transition-theme" style="background: var(--bg-card); border: 1px solid var(--border-color);">
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1.5 transition-theme" style="color: var(--text-secondary);">
+                        <span class="flex items-center gap-1"><i data-lucide="terminal" class="w-3.5 h-3.5 text-blue-600"></i> CPU Workload</span>
+                        <span id="cpuVal" class="font-semibold code-font text-blue-600 transition-theme" style="color: var(--text-blue-600);">--%</span>
+                    </div>
+                    <div class="h-2 w-full rounded-full overflow-hidden transition-theme" style="background: var(--border-color);">
+                        <div id="cpuFill" class="h-full bg-blue-600 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Temperature -->
+                <div class="p-3 rounded-xl shadow-xs transition-theme" style="background: var(--bg-card); border: 1px solid var(--border-color);">
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1.5 transition-theme" style="color: var(--text-secondary);">
+                        <span class="flex items-center gap-1"><i data-lucide="thermometer" class="w-3.5 h-3.5 text-amber-600"></i> Thermal Sensors</span>
+                        <span id="tempVal" class="font-semibold code-font text-amber-600 transition-theme" style="color: var(--text-amber-600);">--°C</span>
+                    </div>
+                    <div class="h-2 w-full rounded-full overflow-hidden transition-theme" style="background: var(--border-color);">
+                        <div id="tempFill" class="h-full bg-amber-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                 <!-- Battery -->
+                <div class="p-3 rounded-xl shadow-xs transition-theme" style="background: var(--bg-card); border: 1px solid var(--border-color);">
+                    <div class="flex justify-between text-xs font-medium text-slate-600 mb-1.5 transition-theme" style="color: var(--text-secondary);">
+                        <span class="flex items-center gap-1"><i data-lucide="battery-charging" class="w-3.5 h-3.5 text-emerald-600"></i> Battery Capacity</span>
+                        <span id="batVal" class="font-semibold code-font text-emerald-600 transition-theme" style="color: var(--text-emerald-600);">--%</span>
+                    </div>
+                    <div class="h-2 w-full rounded-full overflow-hidden transition-theme" style="background: var(--border-color);">
+                        <div id="batFill" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Diagnostics section (Predict Future button) -->
+            <div class="flex flex-col gap-2 border-t pt-3 transition-theme" style="border-color: var(--border-color);">
+                <div class="text-slate-400 text-[10px] font-bold tracking-wider uppercase mb-1 transition-theme" style="color: var(--text-muted);">AI Diagnostics</div>
+                <button id="predictBtn" class="w-full text-white font-medium py-2 px-3 text-xs rounded-xl transition flex items-center gap-2 shadow-sm" style="background: var(--accent); border: 1px solid var(--accent);">
+                    <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                    <span>Predict Future</span>
+                </button>
+            </div>
+
+            <!-- Command overrides (New Simulation, Export, Reset) -->
+            <div class="mt-auto pt-4 border-t flex flex-col gap-2 transition-theme" style="border-color: var(--border-color);">
+                <div class="text-slate-400 text-[10px] font-bold tracking-wider uppercase mb-1 transition-theme" style="color: var(--text-muted);">Command Overrides</div>
+                <button id="newSimBtn" class="w-full text-slate-700 hover:bg-slate-50 font-medium py-2 px-3 text-xs rounded-xl transition flex items-center gap-2 shadow-xs transition-theme" style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-color);">
+                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-blue-600"></i>
+                    <span>Inject New Simulation</span>
+                </button>
+                <button id="exportBtn" class="w-full text-slate-700 hover:bg-slate-50 font-medium py-2 px-3 text-xs rounded-xl transition flex items-center gap-2 shadow-xs transition-theme" style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-color);">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-600"></i>
+                    <span>Export Diagnostic Logs</span>
+                </button>
+                <button id="resetBtn" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2 px-3 text-xs rounded-xl transition flex items-center gap-2 shadow-xs transition-theme" style="background: rgba(239,68,68,0.08); color: var(--text-rose-600); border: 1px solid rgba(239,68,68,0.15);">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    <span>Clear Sandbox Memory</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CHAT AREA ===== -->
+        <main class="flex-1 flex flex-col overflow-hidden relative transition-theme" style="background: var(--bg-chat);">
+            
+            <!-- Chat header -->
+            <div class="border-b px-6 py-4 flex-shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs transition-theme" style="background: var(--bg-card); border-color: var(--border-color);">
+                <div>
+                    <h2 class="font-bold text-base tracking-tight flex items-center gap-2 transition-theme" style="color: var(--text-primary);">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4 text-[#0076CE]"></i> Telemetry Analysis Portal
+                    </h2>
+                    <p class="text-xs mt-0.5 transition-theme" style="color: var(--text-muted);">Diagnose anomalies, execute hypothetical stress projections, and track hardware behaviors.</p>
+                </div>
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <div class="text-[11px] px-2.5 py-1 rounded-md font-medium transition-theme" style="background: var(--accent-light); color: var(--text-blue-600); border: 1px solid var(--border-color);">Deterministic Rule Engine ON</div>
+                </div>
+            </div>
+
+            <!-- Chat feed (dynamic messages) -->
+            <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-4" id="chatFeed"></div>
+
+            <!-- Typing indicator (shown while waiting for backend) -->
+            <div class="px-6 py-3 flex-shrink-0" id="typingIndicator" style="display: none;">
+                <div class="flex items-center gap-2 text-xs font-semibold text-blue-600 shadow-xs border px-3 py-2 rounded-full w-max transition-theme" style="background: var(--bg-typing); color: var(--text-blue-600); border-color: var(--border-color);">
+                    <div class="flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-blue-600 rounded-full inline-block animate-bounce" style="animation-delay: 0.1s"></span>
+                        <span class="w-1.5 h-1.5 bg-blue-600 rounded-full inline-block animate-bounce" style="animation-delay: 0.2s"></span>
+                        <span class="w-1.5 h-1.5 bg-blue-600 rounded-full inline-block animate-bounce" style="animation-delay: 0.3s"></span>
+                    </div>
+                    <span class="font-mono tracking-tight ml-1 transition-theme" style="color: var(--text-muted);">Twin Computing State Reasoning...</span>
+                </div>
+            </div>
+
+            <!-- ===== INPUT BAR ===== -->
+            <div class="border-t p-4 shadow-xl shadow-slate-900/10 flex-shrink-0 transition-theme" style="background: var(--bg-input-bar); border-color: var(--border-color);">
+                <div class="max-w-4xl mx-auto flex items-center gap-3">
+                    <button class="w-11 h-11 border hover:border-slate-300 text-slate-600 hover:text-slate-900 transition rounded-full flex items-center justify-center flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-theme" style="background: var(--bg-card); color: var(--text-secondary); border-color: var(--border-color);" id="micBtn" title="Trigger Speech Detection Recognition">
+                        <i data-lucide="mic" class="w-5 h-5"></i>
+                    </button>
+
+                    <button class="border hover:bg-slate-200 text-slate-700 font-medium px-4 h-11 text-xs rounded-xl transition flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap transition-theme" style="background: var(--bg-card); color: var(--text-secondary); border-color: var(--border-color);" id="simToggle">
+                        <i data-lucide="sliders" class="w-3.5 h-3.5 text-slate-500" id="simIcon"></i>
+                        <span>Simulate</span>
+                    </button>
+
+                    <!-- Text input -->
+                    <div class="flex-1 relative border focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 rounded-xl transition px-4 flex items-center h-11 shadow-inner transition-theme" style="background: var(--bg-input); border-color: var(--border-color);">
+                        <input type="text" id="userInput" placeholder="Ask a question about the laptop state or type 'What if CPU usage increases to 90%'..." class="w-full bg-transparent text-sm outline-none placeholder-slate-400 font-medium transition-theme" style="color: var(--text-primary);" />
+                    </div>
+
+                    <!-- Send button -->
+                    <button class="text-white font-semibold text-sm px-5 h-11 rounded-xl transition flex items-center gap-2 shadow-md shadow-blue-600/10 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0" style="background: var(--accent);" id="sendBtn">
+                        <span>Send Query</span>
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== CHART MODAL ===== -->
+    <!-- Full-screen modal for expanded telemetry chart -->
+    <div id="chartModal" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        <div class="w-full max-w-2xl rounded-2xl p-6 border shadow-2xl transform scale-95 transition-all duration-300 relative mx-4 transition-theme" style="background: var(--bg-modal); border-color: var(--border-color);" id="chartModalCard">
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center font-bold text-base transition-theme" style="color: var(--text-muted);">
+                ✕
+            </button>
+            <div class="text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 transition-theme" style="color: var(--text-primary);">
+                <i data-lucide="line-chart" class="w-4 h-4 text-[#0076CE]"></i> Dynamic Telemetry Engine Analysis
+            </div>
+            <p class="text-xs mb-4 transition-theme" style="color: var(--text-muted);">Historical time-series tracking loop visualizing active device stress gradients.</p>
+            <div class="w-full h-[260px] relative">
+                <canvas id="modalTelemetryCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== AVATAR ===== -->
+    <!-- Floating avatar with lip-sync (mouth animation) -->
+    <div class="fixed bottom-24 right-6 w-20 h-24 flex flex-col items-center gap-1 z-50 transition-opacity duration-300 pointer-events-none" id="avatarContainer" style="display: none;">
+        <div class="w-16 h-16 rounded-full border-2 border-blue-500 flex items-center justify-center relative shadow-lg shadow-slate-900/30 transition-theme" style="background: var(--bg-avatar);">
+            <div class="absolute inset-0 rounded-full border border-blue-400 opacity-40 avatar-pulse"></div>
+            <div class="text-2xl relative select-none">
+                🤖
+
+                <!-- SVG mouth for lip-sync -->
+                <svg id="avatarMouth" viewBox="0 0 40 30" width="24" height="14" class="absolute -bottom-1.5 left-1/2 -translate-x-1/2">
+                    <path d="M 8,12 Q 20,8 32,12" stroke="#475569" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <path id="lowerLip" d="M 8,12 Q 20,12 32,12" stroke="#475569" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <ellipse id="mouthOpen" cx="20" cy="12" rx="8" ry="1" fill="#EF4444" opacity="0"/>
+                </svg>
+            </div>
+        </div>
+        <span class="text-[10px] tracking-wider uppercase font-bold px-1.5 py-0.5 rounded backdrop-blur-xs shadow-sm transition-theme" style="background: var(--bg-avatar); color: var(--text-muted);">AI Twin View</span>
+    </div>
+
+     <!-- ===== TOAST ===== -->
+    <!-- Temporary notification popup -->
+    <div class="fixed bottom-24 left-1/2 transform -translate-x-1/2 text-white font-medium text-xs px-4 py-2.5 rounded-xl shadow-lg z-50 opacity-0 pointer-events-none transition-opacity duration-300 transition-theme" style="background: var(--bg-toast);" id="toast"></div>
+
+    <script>
+
+         // =========================================================================
+        // MAIN APPLICATION SCRIPT
+        // =========================================================================
+        // This script manages the entire frontend logic:
+        // - Theme toggling (light/dark)
+        // - Chat messaging (send/receive, render messages with charts)
+        // - Telemetry state (CPU, Temp, Battery) updates with real-time simulation
+        // - Web Speech API for voice input and text-to-speech
+        // - Avatar lip-sync animation
+        // - Modal chart rendering with Chart.js
+        // - Sidebar actions: Predict Future, New Simulation, Export, Reset
+        // - Simulation mode that auto-injects what-if questions
+        // - Wi-Fi signal strength indicator
+        // =========================================================================
+
+        // Global toggleEvidence for inline listeners (used by evidence buttons)
+        function toggleEvidence(buttonElement) {
+            const container = buttonElement.nextElementSibling;
+            const icon = buttonElement.querySelector('[data-lucide="chevron-down"]');
+            if (container) {
+                container.classList.toggle('hidden');
+                if (icon) {
+                    icon.style.transform = container.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+            }
+        }
+
+        // IIFE to avoid polluting global scope
+        (function() {
+            'use strict';
+
+            // ---- DOM references ----
+            const chatFeed = document.getElementById('chatFeed');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const micBtn = document.getElementById('micBtn');
+            const simToggle = document.getElementById('simToggle');
+            const resetBtn = document.getElementById('resetBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const newSimBtn = document.getElementById('newSimBtn');
+            const avatarToggle = document.getElementById('avatarToggle');
+            const avatarKnob = document.getElementById('avatarKnob');
+            const avatarContainer = document.getElementById('avatarContainer');
+            const typingIndicator = document.getElementById('typingIndicator');
+            const toast = document.getElementById('toast');
+            const lowerLip = document.getElementById('lowerLip');
+            const mouthOpen = document.getElementById('mouthOpen');
+            const chartModal = document.getElementById('chartModal');
+            const chartModalCard = document.getElementById('chartModalCard');
+            const viewMetricTrendBtn = document.getElementById('viewMetricTrendBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const themeToggle = document.getElementById('themeToggle');
+            const predictBtn = document.getElementById('predictBtn');
+            let telemetryGlobalChartInstance = null;
+
+            // ---- State variables ----
+            let conversationHistory = [];
+            let isAvatarMode = false;
+            let isSimulateMode = false;
+            let isListening = false;
+            let recognition = null;
+            let isDark = false;
+
+            // Telemetry data tracks for charts
+            let cpuHistoryTrack = [];
+            let tempHistoryTrack = [];
+            let batHistoryTrack = [];
+            let timestampLabelsTrack = [];
+
+            // ---- Predefined simulation questions (cycled through) ----
+            const simQuestions = [
+                "What if CPU usage spikes to 95% while running a machine learning model?",
+                "What if the ambient room temperature rises by 10°C?",
+                "What if I start a 4K video rendering job with battery at 40%?",
+                "What if network bandwidth drops to 10 Mbps during a large file upload?",
+                "What if a background Windows update runs while I am gaming?",
+                "What if I close all background applications to reduce CPU load to 20%?"
+            ];
+            let simIndex = 0;
+
+            // Set session time in sidebar
+            document.getElementById('sessionTime').textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            // ---- THEME TOGGLE ----
+            function toggleTheme() {
+                isDark = !isDark;
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                themeToggle.classList.toggle('active', isDark);
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            }
+
+            // Load saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                isDark = true;
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.classList.add('active');
+            }
+
+            themeToggle.addEventListener('click', toggleTheme);
+
+             // ---- Toast notification ----
+            function showToast(msg, type = 'success') {
+                toast.textContent = msg;
+                if (type === 'error') {
+                    toast.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 text-white font-medium text-xs px-4 py-2.5 rounded-xl shadow-lg z-50 transition-opacity duration-300 opacity-100 bg-rose-600 border border-rose-500 shadow-rose-600/20';
+                } else {
+                    toast.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 text-white font-medium text-xs px-4 py-2.5 rounded-xl shadow-lg z-50 transition-opacity duration-300 opacity-100 bg-slate-900 border border-slate-800 shadow-slate-950/30';
+                }
+                clearTimeout(toast._timer);
+                toast._timer = setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                    toast.classList.remove('opacity-100');
+                }, 3000);
+            }
+
+            function scrollChat() {
+                chatFeed.scrollTop = chatFeed.scrollHeight;
+            }
+
+            // ---- Render prediction card (from AI) ----
+            function renderPredictionCard(healthStatus, futureHealth, issues, rootCause, recommendations, riskLevel) {
+                const statusClass = {
+                    'Excellent': 'status-excellent',
+                    'Good': 'status-good',
+                    'Warning': 'status-warning',
+                    'Critical': 'status-critical'
+                }[healthStatus] || 'status-good';
+
+                const riskClass = {
+                    'Low': 'risk-low',
+                    'Medium': 'risk-medium',
+                    'High': 'risk-high'
+                }[riskLevel] || 'risk-medium';
+
+                let html = `
+                    <div class="card-prediction rounded-xl p-4 border transition-theme" style="background: var(--bg-evidence); border-color: var(--border-color);">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2 text-sm font-bold" style="color: var(--text-primary);">
+                                <i data-lucide="trending-up" class="w-4 h-4 text-purple-500"></i>
+                                AI Predictions
+                            </div>
+                            <span class="text-xs text-muted" style="color: var(--text-muted);">View AI Predictions →</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <div class="text-xs text-muted" style="color: var(--text-muted);">Health Status</div>
+                                <span class="status-badge ${statusClass}">${healthStatus}</span>
+                            </div>
+                            <div>
+                                <div class="text-xs text-muted" style="color: var(--text-muted);">Risk</div>
+                                <span class="status-badge ${riskClass}">${riskLevel}</span>
+                            </div>
+                        </div>
+                        <div class="text-xs font-semibold text-muted mb-1" style="color: var(--text-muted);">Issue:</div>
+                        <p class="text-sm mb-2" style="color: var(--text-secondary);">${issues}</p>
+                        <div class="text-xs font-semibold text-muted mb-1" style="color: var(--text-muted);">Future Health:</div>
+                        <p class="text-sm mb-2" style="color: var(--text-secondary);">${futureHealth}</p>
+                        <div class="text-xs font-semibold text-muted mb-1" style="color: var(--text-muted);">Root Cause:</div>
+                        <p class="text-sm mb-2" style="color: var(--text-secondary);">${rootCause}</p>
+                        <div class="text-xs font-semibold text-muted mb-1" style="color: var(--text-muted);">Precautions:</div>
+                        <ul class="recommendation-list text-sm" style="color: var(--text-secondary);">
+                            ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                return html;
+            }
+
+            // ---- Handle Predict Future (calls backend /api/predict) ----
+            async function handlePredictFuture() {
+                try {
+                    showTyping();
+
+                    const response = await fetch('/api/predict', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache, no-store, must-revalidate'
+                        },
+                        body: JSON.stringify({})
+                    });
+                    hideTyping();
+
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        showToast('⚠️ ' + data.error, 'error');
+                        return;
+                    }
+
+                    const cardHtml = renderPredictionCard(
+                        data.healthStatus,
+                        data.futureHealth,
+                        data.issues,
+                        data.rootCause,
+                        data.recommendations,
+                        data.riskLevel
+                    );
+                    addMessage('assistant', cardHtml, null, null, false, true);
+                    showToast('🔮 Prediction generated', 'success');
+                } catch (err) {
+                    hideTyping();
+                    console.error('Predict error:', err);
+                    showToast('⚠️ Failed to get prediction: ' + err.message, 'error');
+                }
+            }
+
+            // ---- Add message to chat feed ----
+            // role: 'user' or 'assistant'
+            // content: HTML string (supports markdown bold)
+            // evidence: optional evidence log string
+            // confidence: optional confidence score
+            // triggerChart: if true, renders an inline chart
+            // isCard: if true, renders as a card without bubble wrapper (used for prediction cards)
+            function addMessage(role, content, evidence = null, confidence = null, triggerChart = false, isCard = false) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = role === 'user' 
+                    ? 'flex flex-col items-end w-full max-w-2xl ml-auto mb-4 animate-fade-in' 
+                    : 'flex flex-col items-start w-full max-w-3xl mr-auto mb-4 animate-fade-in';
+
+                const isUser = (role === 'user');
+                const chartId = 'inline_chart_' + Date.now();
+                
+                let html = '';
+                if (!isCard || isUser) {
+                    html = `
+                        <div class="flex items-center gap-1.5 text-xs font-bold mb-1 px-1 transition-theme" style="color: var(--text-muted);">
+                            <i data-lucide="${isUser ? 'user' : 'bot'}" class="w-3.5 h-3.5 ${isUser ? 'text-blue-600' : 'text-[#0076CE]'}"></i>
+                            <span>${isUser ? 'Local User Host' : 'Dell AI Assistant Engine'}</span>
+                        </div>
+                        <div class="w-full rounded-2xl p-4 shadow-xs border ${
+                            isUser 
+                                ? 'rounded-tr-none' 
+                                : 'rounded-tl-none'
+                        } transition-theme" style="background: ${isUser ? 'var(--bg-bubble-user)' : 'var(--bg-bubble-assistant)'}; color: ${isUser ? 'var(--text-primary)' : 'var(--text-assistant)'}; border-color: var(--border-color); border-left: ${isUser ? 'none' : '3px solid var(--accent)'};">
+                            <div class="text-sm font-medium leading-relaxed whitespace-pre-wrap">${isCard ? content : formatMarkdownBold(content)}</div>
+                            
+                            ${triggerChart && !isUser ? `
+                                <div class="mt-4 p-3 rounded-xl w-full max-w-xl mx-auto transition-theme" style="background: var(--bg-card); border: 1px solid var(--border-color);">
+                                    <div class="text-[10px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1 transition-theme" style="color: var(--text-muted);">
+                                        <i data-lucide="line-chart" class="w-3 h-3 text-[#0076CE]"></i> Context Log Graph
+                                    </div>
+                                    <div class="w-full h-[180px] relative">
+                                        <canvas id="${chartId}"></canvas>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    // Card mode - directly render the card HTML without bubble wrapper
+                    html = `
+                        <div class="flex items-center gap-1.5 text-xs font-bold mb-1 px-1 transition-theme" style="color: var(--text-muted);">
+                            <i data-lucide="bot" class="w-3.5 h-3.5 text-[#0076CE]"></i>
+                            <span>Dell AI Assistant Engine</span>
+                        </div>
+                        <div class="w-full">
+                            ${content}
+                        </div>
+                    `;
+                }
+
+                // Append confidence badge (if not a card)
+                if (!isUser && confidence !== null && !isCard) {
+                    html += `
+                        <div class="flex items-center gap-2 mt-1.5 px-1">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border flex items-center gap-1 transition-theme" style="background: var(--bg-evidence); color: var(--text-muted); border-color: var(--border-color);">
+                                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-600"></i> Reasoning Confidence: ${confidence}%
+                            </span>
+                        </div>
+                    `;
+                }
+
+                // Append evidence log with toggle (if not a card)
+                if (!isUser && evidence && !isCard) {
+                    html += `
+                        <div class="w-full mt-2 rounded-xl overflow-hidden transition-theme" style="background: var(--bg-evidence); border: 1px solid var(--border-color);">
+                            <button class="w-full px-3 py-2 flex items-center justify-between text-left text-xs font-semibold transition" style="color: var(--text-secondary);" onclick="toggleEvidence(this)">
+                                <span class="flex items-center gap-1.5"><i data-lucide="search" class="w-3.5 h-3.5" style="color: var(--text-muted);"></i> Explainable AI Transparency Log</span>
+                                <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200" style="color: var(--text-muted);"></i>
+                            </button>
+                            <div class="hidden border-t p-3 code-font text-[11px] leading-relaxed overflow-x-auto whitespace-pre transition-theme" style="background: var(--bg-evidence-content); color: var(--text-secondary); border-color: var(--border-color);">${evidence}</div>
+                        </div>
+                    `;
+                }
+
+                msgDiv.innerHTML = html;
+                chatFeed.appendChild(msgDiv);
+                
+                // Re-initialize Lucide icons in the new content
+                if (window.lucide) lucide.createIcons({ attrs: { class: ['w-3.5', 'h-3.5'] } });
+                
+                // If triggerChart and not a card, render the inline chart
+                if (triggerChart && !isUser && !content.includes("Simulation Analysis:")) {
+                    setTimeout(() => renderTargetCanvas(chartId), 100);
+                }
+
+                scrollChat();
+                return msgDiv;
+            }
+
+            // Simple markdown bold formatting (converts **text** to <strong>)
+            function formatMarkdownBold(text) {
+                if (!text) return "";
+                return text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold px-1 rounded" style="background: var(--bg-evidence); color: var(--text-primary);">$1</strong>');
+            }
+
+            function showTyping() {
+                typingIndicator.style.display = 'block';
+                scrollChat();
+            }
+
+            function hideTyping() {
+                typingIndicator.style.display = 'none';
+            }
+
+            // ---- Send user message to backend ----
+            async function sendToBackend(message) {
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: message }),
+                    });
+                    if (!response.ok) {
+                        throw new Error(`Endpoint response failure state: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (err) {
+
+                    // Fallback in case of network failure
+                    return {
+                        success: false,
+                        error: err.message,
+                        diagnosis: 'Fatal processing exception detected on telemetry loops.',
+                        recommendation: 'Verify compiled application runtime server health.',
+                        confidence: 0,
+                        evidence: 'Temp=72.0 CPU=85.0 Bat=42.0',
+                    };
+                }
+            }
+
+            // ---- Main handler for sending a message ----
+            async function handleSend() {
+                const text = userInput.value.trim();
+                if (!text) return;
+
+                const lowerQuery = text.toLowerCase();
+                const triggerChartIntent = lowerQuery.match(/(graph|chart|plot|draw|trends|history)/g) !== null;
+                const triggerWhatIfIntent = lowerQuery.match(/(what if|simulate)/g) !== null;
+
+                userInput.value = '';
+                addMessage('user', text);
+                conversationHistory.push({ role: 'user', content: text });
+                showTyping();
+
+                const response = await sendToBackend(text);
+                hideTyping();
+
+                if (triggerWhatIfIntent) {
+
+                     // Handle "what-if" scenario: simulate and possibly render chart
+                    let metrics = scoreStateParser(response.evidence);
+                    if (lowerQuery.includes("90") || lowerQuery.includes("high load") || lowerQuery.includes("usage")) {
+                        metrics.cpu = 90.0;
+                        metrics.temp = 81.0;
+                    }
+
+                    // Update local telemetry history with simulated values
+                    const localCpuTrack = [...cpuHistoryTrack];
+                    const localTempTrack = [...tempHistoryTrack];
+                    const localBatTrack = [...batHistoryTrack];
+                    const localLabelsTrack = [...timestampLabelsTrack];
+
+                    if (localCpuTrack.length >= 8) {
+                        localCpuTrack.shift();
+                        localTempTrack.shift();
+                        localBatTrack.shift();
+                        localLabelsTrack.shift();
+                    }
+
+                    localCpuTrack.push(metrics.cpu);
+                    localTempTrack.push(metrics.temp);
+                    localBatTrack.push(metrics.bat);
+                    localLabelsTrack.push(new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) + " (Sim)");
+
+                    let assistantContent = `**Simulation Analysis:** ${response.diagnosis || 'Probing hypothetical parameters.'}\n\n**Recommendation:** ${response.recommendation || 'Observe simulated threshold behaviors.'}`;
+                    if (triggerChartIntent) {
+                        assistantContent += `\n\n📊 Generating isolated simulation trajectory graph below...`;
+                    }
+
+                    const msgDiv = addMessage('assistant', assistantContent, response.evidence, response.confidence, triggerChartIntent);
+                    conversationHistory.push({ role: 'assistant', content: assistantContent });
+
+                    // If chart requested, render it on the inline canvas
+                    if (triggerChartIntent) {
+                        const inlineCanvas = msgDiv.querySelector('canvas');
+                        if (inlineCanvas) {
+                            setTimeout(() => {
+                                new Chart(inlineCanvas, {
+                                    type: 'line',
+                                    data: {
+                                        labels: localLabelsTrack,
+                                        datasets: [
+                                            { label: 'Simulated CPU (%)', data: localCpuTrack, borderColor: '#EF4444', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2 },
+                                            { label: 'Simulated Temp (°C)', data: localTempTrack, borderColor: '#F59E0B', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2 },
+                                            { label: 'Battery (%)', data: localBatTrack, borderColor: '#10B981', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [3, 3] }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: { y: { beginAtZero: true, max: 100 } }
+                                    }
+                                });
+                            }, 100);
+                        }
+                    }
+
+                } else {
+
+                    // Normal query (non-what-if)
+                    syncEngineTelemetryState(response, false, lowerQuery);
+
+                    let assistantContent = `**Diagnosis:** ${response.diagnosis || 'Metrics context parsing stable.'}\n\n**Recommendation:** ${response.recommendation || 'Maintain constant log observation profiles.'}`;
+                    if (triggerChartIntent) {
+                        assistantContent += `\n\n📊 Generating actual dynamic telemetry log trend graph below...`;
+                    }
+
+                    addMessage('assistant', assistantContent, response.evidence, response.confidence, triggerChartIntent);
+                    conversationHistory.push({ role: 'assistant', content: assistantContent });
+                }
+
+                // If avatar mode is on, speak the response
+                if (isAvatarMode && response.success !== false) {
+                    speakText((response.diagnosis || '') + '. ' + (response.recommendation || ''));
+                }
+            }
+
+            // ---- Parse evidence string to extract CPU, Temp, Battery values ----
+            function scoreStateParser(evidenceStr) {
+                let parsed = { cpu: 49.0, temp: 56.0, bat: 84.1 };
+                if (!evidenceStr) return parsed;
+                try {
+                    const cpuMatch = evidenceStr.match(/CPU Load:\s*([\d.]+)/) || evidenceStr.match(/CPU=([\d.]+)/);
+                    const tempMatch = evidenceStr.match(/Temperature:\s*([\d.]+)/) || evidenceStr.match(/Temp=([\d.]+)/);
+                    const batMatch = evidenceStr.match(/Battery Level:\s*([\d.]+)/) || evidenceStr.match(/Bat=([\d.]+)/);
+
+                    if (cpuMatch) parsed.cpu = parseFloat(cpuMatch[1]);
+                    if (tempMatch) parsed.temp = parseFloat(tempMatch[1]);
+                    if (batMatch) parsed.bat = parseFloat(batMatch[1]);
+                } catch(e) {
+                    console.warn(e);
+                }
+                return parsed;
+            }
+
+            // ---- Update sidebar telemetry bars and history tracks ----
+            function syncEngineTelemetryState(response, isWhatIfOverride = false, queryText = "") {
+                try {
+                    let metrics = scoreStateParser(response.evidence);
+
+                    // For what-if override, we can force high values
+                    if (isWhatIfOverride && (queryText.includes("90") || queryText.includes("high load") || queryText.includes("usage"))) {
+                        metrics.cpu = 90.0;
+                        metrics.temp = 81.0;
+                    }
+
+                    // Update UI elements
+                    document.getElementById('cpuVal').textContent = metrics.cpu.toFixed(1) + '%';
+                    document.getElementById('cpuFill').style.width = metrics.cpu + '%';
+                    
+                    document.getElementById('tempVal').textContent = metrics.temp.toFixed(1) + '°C';
+                    document.getElementById('tempFill').style.width = (metrics.temp * 100 / 110) + '%';
+                    
+                    document.getElementById('batVal').textContent = metrics.bat.toFixed(1) + '%';
+                    document.getElementById('batFill').style.width = metrics.bat + '%';
+
+                    // Add to history tracks (max 8 points)
+                    if (cpuHistoryTrack.length >= 8) {
+                        cpuHistoryTrack.shift();
+                        tempHistoryTrack.shift();
+                        batHistoryTrack.shift();
+                        timestampLabelsTrack.shift();
+                    }
+                    
+                    cpuHistoryTrack.push(metrics.cpu);
+                    tempHistoryTrack.push(metrics.temp);
+                    batHistoryTrack.push(metrics.bat);
+                    timestampLabelsTrack.push(new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}));
+
+                } catch(e) {
+                    console.warn(e);
+                }
+            }
+
+            // ---- Render inline chart on a given canvas ID ----
+            function renderTargetCanvas(targetId) {
+                const targetCanvasCtx = document.getElementById(targetId);
+                if (!targetCanvasCtx) return;
+
+                new Chart(targetCanvasCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timestampLabelsTrack,
+                        datasets: [
+                            { label: 'CPU Load (%)', data: cpuHistoryTrack, borderColor: '#2563EB', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, fill: false },
+                            { label: 'Core Temp (°C)', data: tempHistoryTrack, borderColor: '#D97706', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, fill: false },
+                            { label: 'Battery (%)', data: batHistoryTrack, borderColor: '#10B981', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [3, 3], tension: 0.1, fill: false }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94A3B8', font: { size: 10, family: 'Inter' } } } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { color: '#64748B', font: { size: 9, family: 'JetBrains Mono' } } },
+                            x: { ticks: { color: '#64748B', font: { size: 9, family: 'JetBrains Mono' } } }
+                        }
+                    }
+                });
+            }
+
+            // ---- Open telemetry modal with full chart ----s
+            function openTelemetryModalBox() {
+                chartModal.classList.remove('opacity-0', 'pointer-events-none');
+                chartModal.classList.add('opacity-100');
+                chartModalCard.classList.remove('scale-95');
+                chartModalCard.classList.add('scale-100');
+
+                if (telemetryGlobalChartInstance) {
+                    telemetryGlobalChartInstance.destroy();
+                }
+
+                const modalCtx = document.getElementById('modalTelemetryCanvas').getContext('2d');
+                telemetryGlobalChartInstance = new Chart(modalCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timestampLabelsTrack,
+                        datasets: [
+                            { label: 'CPU Utilization (%)', data: cpuHistoryTrack, borderColor: '#0076CE', backgroundColor: 'rgba(0, 118, 206, 0.04)', borderWidth: 2, tension: 0.2, fill: true },
+                            { label: 'Thermal Boundary (°C)', data: tempHistoryTrack, borderColor: '#ED8936', backgroundColor: 'rgba(237, 137, 54, 0.04)', borderWidth: 2, tension: 0.2, fill: true },
+                            { label: 'Battery Runline (%)', data: batHistoryTrack, borderColor: '#48BB78', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4, 4], tension: 0.1, fill: false }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94A3B8', font: { size: 11, family: 'Inter', weight: '500' } } } },
+                        scales: {
+                            y: { beginAtZero: true, max: 100, ticks: { color: '#64748B', font: { size: 10, family: 'JetBrains Mono' } } },
+                            x: { ticks: { color: '#64748B', font: { size: 10, family: 'JetBrains Mono' } } }
+                        }
+                    }
+                });
+            }
+
+            // ---- Text-to-speech with lip-sync animation ----
+            function closeTelemetryModalBox() {
+                chartModal.classList.add('opacity-0', 'pointer-events-none');
+                chartModal.classList.remove('opacity-100');
+                chartModalCard.classList.add('scale-95');
+                chartModalCard.classList.remove('scale-100');
+            }
+
+            function speakText(text) {
+                if (!window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.05;
+                let lipInterval = null;
+                let isSpeaking = false;
+
+                utterance.onstart = function() {
+                    isSpeaking = true;
+                    if (isAvatarMode) avatarContainer.style.display = 'flex';
+                    (function animate() {
+                        if (!isSpeaking) return;
+                        const openAmount = 4 + Math.random() * 12;
+                        lowerLip.setAttribute('d', `M 8,12 Q 20,${10 + openAmount} 32,12`);
+                        mouthOpen.setAttribute('ry', openAmount / 2);
+                        mouthOpen.setAttribute('opacity', '1');
+                        lipInterval = setTimeout(animate, 60 + Math.random() * 80);
+                    })();
+                };
+
+                utterance.onend = function() {
+                    isSpeaking = false;
+                    clearTimeout(lipInterval);
+                    lowerLip.setAttribute('d', 'M 8,12 Q 20,12 32,12');
+                    mouthOpen.setAttribute('opacity', '0');
+                };
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // ---- Speech recognition setup (Web Speech API) ----
+            function initSpeechRecognition() {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    isListening = true;
+                    micBtn.className = 'w-11 h-11 bg-rose-50 border border-rose-300 text-rose-600 transition rounded-full flex items-center justify-center flex-shrink-0 animate-pulse focus:outline-none';
+                    showToast('🎤 Listening to voice pipeline...', 'success');
+                };
+
+                recognition.onresult = function(event) {
+                    userInput.value = event.results[0][0].transcript;
+                    showToast('✅ Signal parsed correctly', 'success');
+                    setTimeout(handleSend, 400);
+                };
+
+                recognition.onend = function() {
+                    isListening = false;
+                    micBtn.className = 'w-11 h-11 bg-slate-100 border border-slate-200 text-slate-600 transition rounded-full flex items-center justify-center flex-shrink-0 focus:outline-none';
+                };
+            }
+
+            // ---- Toggle microphone ----
+            function toggleMic() {
+                if (!recognition) {
+                    showToast('⚠️ Voice logic unhydrated inside current browser.', 'error');
+                    return;
+                }
+                if (isListening) recognition.stop();
+                else try { recognition.start(); } catch (e) { console.warn(e); }
+            }
+
+            // ---- Toggle avatar mode ----
+            function toggleAvatar() {
+                isAvatarMode = !isAvatarMode;
+                if (isAvatarMode) {
+                    avatarToggle.classList.add('bg-blue-600');
+                    avatarToggle.classList.remove('bg-slate-700');
+                    avatarKnob.classList.add('translate-x-4');
+                    avatarContainer.style.display = 'flex';
+                    showToast('🧑‍💻 Lip-sync virtualization rendering online', 'success');
+                } else {
+                    avatarToggle.classList.remove('bg-blue-600');
+                    avatarToggle.classList.add('bg-slate-700');
+                    avatarKnob.classList.remove('translate-x-4');
+                    avatarContainer.style.display = 'none';
+                    if (window.speechSynthesis) window.speechSynthesis.cancel();
+                    showToast('🧑‍💻 Lip-sync virtualization layer closed', 'success');
+                }
+            }
+
+            // ---- Toggle simulate mode ----
+            function toggleSimulate() {
+                isSimulateMode = !isSimulateMode;
+                simToggle.classList.toggle('bg-[#0076CE]', isSimulateMode);
+                simToggle.classList.toggle('text-white', isSimulateMode);
+                simToggle.classList.toggle('border-[#005A9E]', isSimulateMode);
+                
+                const simIcon = document.getElementById('simIcon');
+                if (simIcon) {
+                    simIcon.classList.toggle('text-white', isSimulateMode);
+                    simIcon.classList.toggle('text-slate-500', !isSimulateMode);
+                }
+                
+                if (isSimulateMode) {
+                    showToast('📊 Simulation metrics override ACTIVE', 'success');
+                } else {
+                    showToast('📊 Simulation metrics override CLOSED', 'success');
+                }
+            }
+
+            // ---- Reset chat (clear messages) ----
+            function resetChat() {
+                chatFeed.innerHTML = '';
+                conversationHistory = [];
+                const welcomeDiv = document.createElement('div');
+                welcomeDiv.className = 'text-center font-mono text-xs py-8 px-4 border border-dashed rounded-xl w-full max-w-md mx-auto transition-theme';
+                welcomeDiv.style.color = 'var(--text-muted)';
+                welcomeDiv.style.background = 'var(--bg-card)';
+                welcomeDiv.style.borderColor = 'var(--border-color)';
+                welcomeDiv.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4 text-amber-500 mx-auto mb-1"></i> Sandbox memory vectors cleared. Channel initialized.';
+                chatFeed.appendChild(welcomeDiv);
+                if (window.lucide) lucide.createIcons();
+                showToast('🔄 Channel sequence memory cleared', 'success');
+            }
+
+            // ---- Export chat log as text file ----
+            function exportReport() {
+                let text = 'DELL AI DIGITAL TWIN - DIAGNOSTIC LOG REPORT\n';
+                text += '============================================\n';
+                const messages = chatFeed.querySelectorAll('.flex-col');
+                messages.forEach((msg, index) => {
+                    const sender = msg.querySelector('.text-xs.font-bold')?.textContent || 'Entity';
+                    const content = msg.querySelector('.whitespace-pre-wrap')?.textContent || '';
+                    text += `[Trace Entry #${index+1}] ${sender}:\n${content}\n\n`;
+                });
+                const blob = new Blob([text], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'dell_twin_telemetry_report.txt';
+                a.click();
+                showToast('📋 Log vectors packaged and downloaded', 'success');
+            }
+
+            /// ---- Update Wi-Fi signal standing bars (simulated) ----
+            function updateWifiStrength() {
+                const bars = document.querySelectorAll('.wifi-bar');
+                const label = document.getElementById('wifiLabel');
+                
+                let strength = 4; // default: full bars
+                
+                // 20% chance of dropping to 3 bars
+                if (Math.random() < 0.20) {
+                    strength = 3;
+                }
+                // 2% chance of dropping to 2 bars (rare)
+                if (Math.random() < 0.02) {
+                    strength = 2;
+                }
+                // 0.5% chance of dropping to 1 bar (very rare)
+                if (Math.random() < 0.005) {
+                    strength = 1;
+                }
+                
+                bars.forEach(bar => {
+                    const level = parseInt(bar.getAttribute('data-level'));
+                    if (level <= strength) {
+                        bar.classList.remove('inactive');
+                        bar.classList.add('active');
+                    } else {
+                        bar.classList.remove('active');
+                        bar.classList.add('inactive');
+                    }
+                });
+                
+                const labels = {
+                    4: 'Excellent',
+                    3: 'Good',
+                    2: 'Fair',
+                    1: 'Poor'
+                };
+                if (label) {
+                    label.textContent = 'Wi‑Fi ' + (labels[strength] || '');
+                }
+            }
+
+            // ---- Heartbeat: simulate live telemetry updates every 3 seconds ----
+            function runLiveTelemetryHeartbeat() {
+                setInterval(() => {
+                    let currentCpu = cpuHistoryTrack.length ? cpuHistoryTrack[cpuHistoryTrack.length - 1] : 40.0;
+                    let currentTemp = tempHistoryTrack.length ? tempHistoryTrack[tempHistoryTrack.length - 1] : 45.0;
+                    let currentBat = batHistoryTrack.length ? batHistoryTrack[batHistoryTrack.length - 1] : 85.0;
+
+                    // 80% chance of normal fluctuation, 20% chance of a high spike
+                    let isSpike = Math.random() < 0.20;
+
+                    let nextCpu, nextTemp, nextBat;
+
+                    if (isSpike) {
+                        // Simulate a heavy workload spike
+                        nextCpu = 75 + Math.random() * 20;  // 75-95%
+                        nextTemp = 70 + Math.random() * 15; // 70-85°C
+                        nextBat = Math.max(0, currentBat - 0.5 - Math.random() * 1.0);
+                    } else {
+                        // Normal fluctuation
+                        nextCpu = Math.max(10, Math.min(60, currentCpu + (Math.random() * 8 - 4)));
+                        nextTemp = Math.max(35, Math.min(65, currentTemp + (Math.random() * 4 - 2)));
+                        nextBat = Math.max(0, currentBat - 0.05 - Math.random() * 0.1);
+                    }
+
+                    // Ensure values stay within realistic bounds
+                    nextCpu = Math.max(5, Math.min(100, nextCpu));
+                    nextTemp = Math.max(30, Math.min(95, nextTemp));
+                    nextBat = Math.max(0, Math.min(100, nextBat));
+
+                    const mockResponse = {
+                        evidence: `CPU=${nextCpu.toFixed(1)} Temp=${nextTemp.toFixed(1)} Bat=${nextBat.toFixed(1)}`
+                    };
+
+                    syncEngineTelemetryState(mockResponse, false, "");
+
+                    // ---- Update Wi-Fi signal ----
+                    updateWifiStrength();
+
+                    // If modal chart is open, update it
+                    if (chartModal.classList.contains('opacity-100') && telemetryGlobalChartInstance) {
+                        telemetryGlobalChartInstance.data.labels = timestampLabelsTrack;
+                        telemetryGlobalChartInstance.data.datasets[0].data = cpuHistoryTrack;
+                        telemetryGlobalChartInstance.data.datasets[1].data = tempHistoryTrack;
+                        telemetryGlobalChartInstance.data.datasets[2].data = batHistoryTrack;
+                        telemetryGlobalChartInstance.update('none');
+                    }
+                }, 3000);
+            }
+
+            // ---- Inject next simulation question (silent activation) ----
+            function injectNextSimulation() {
+                const question = simQuestions[simIndex % simQuestions.length];
+                
+                 // Automatically enable simulate mode without toast
+                if (!isSimulateMode) {
+                    isSimulateMode = true;
+                    simToggle.classList.add('bg-[#0076CE]', 'text-white', 'border-[#005A9E]');
+                    const simIcon = document.getElementById('simIcon');
+                    if (simIcon) {
+                        simIcon.classList.add('text-white');
+                        simIcon.classList.remove('text-slate-500');
+                    }
+                }
+                
+                userInput.value = question;
+                simIndex = (simIndex + 1) % simQuestions.length;
+                userInput.focus();
+            }
+
+            // ---- Initialization ----
+            function init() {
+                if (window.lucide) lucide.createIcons();
+
+                // Event listeners for buttons
+                sendBtn.addEventListener('click', handleSend);
+                userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+                micBtn.addEventListener('click', toggleMic);
+                simToggle.addEventListener('click', toggleSimulate);
+                resetBtn.addEventListener('click', resetChat);
+                exportBtn.addEventListener('click', exportReport);
+                newSimBtn.addEventListener('click', injectNextSimulation);
+                avatarToggle.addEventListener('click', toggleAvatar);
+                
+                viewMetricTrendBtn.addEventListener('click', openTelemetryModalBox);
+                closeModalBtn.addEventListener('click', closeTelemetryModalBox);
+                chartModal.addEventListener('click', (e) => { if(e.target === chartModal) closeTelemetryModalBox(); });
+
+                predictBtn.addEventListener('click', handlePredictFuture);
+
+                initSpeechRecognition();
+                
+                // Preload with some historical telemetry data (so charts have initial points)
+                const pastTimestamps = [
+                    new Date(Date.now() - 20 * 60 * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
+                    new Date(Date.now() - 15 * 60 * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
+                    new Date(Date.now() - 10 * 60 * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
+                    new Date(Date.now() - 5 * 60 * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
+                    new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})
+                ];
+
+                const pastCpu = [32.5, 58.1, 44.2, 70.0, 49.0];
+                const pastTemp = [50.2, 54.8, 53.0, 59.5, 56.0];
+                const pastBat = [85.5, 85.1, 84.8, 84.4, 84.1];
+
+                for (let i = 0; i < 5; i++) {
+                    cpuHistoryTrack.push(pastCpu[i]);
+                    tempHistoryTrack.push(pastTemp[i]);
+                    batHistoryTrack.push(pastBat[i]);
+                    timestampLabelsTrack.push(pastTimestamps[i]);
+                }
+
+                // Set initial sidebar values
+                document.getElementById('cpuVal').textContent = '49.0%';
+                document.getElementById('cpuFill').style.width = '49%';
+                document.getElementById('tempVal').textContent = '56.0°C';
+                document.getElementById('tempFill').style.width = (56 * 100 / 110) + '%';
+                document.getElementById('batVal').textContent = '84.1%';
+                document.getElementById('batFill').style.width = '84.1%';
+
+                 // Add welcome message
+                addMessage('assistant', 'Hello! I am your Dell AI Digital Twin. I can analyze laptop telemetry, diagnose issues, predict failures, and simulate what-if scenarios. How can I help you today?', null, 100);
+
+                // Start live telemetry updates
+                runLiveTelemetryHeartbeat();
+                setTimeout(updateWifiStrength, 500);
+            }
+
+            // Start app when DOM is ready
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+.env
+*.csv
+*.mp3
+*.wav
+target/
+*.pkl
