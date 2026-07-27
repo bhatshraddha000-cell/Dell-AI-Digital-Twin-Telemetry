@@ -1,4 +1,4 @@
-#💻 Dell AI Digital Twin — Laptop Telemetry Intelligence
+# 💻 Dell AI Digital Twin — Laptop Telemetry Intelligence
 
 A virtual, AI-powered **Digital Twin** for consumer laptops that monitors live hardware telemetry signals, reasons over system stress, conducts "What-If" scenario simulations, and provides explainable diagnostics.
 
