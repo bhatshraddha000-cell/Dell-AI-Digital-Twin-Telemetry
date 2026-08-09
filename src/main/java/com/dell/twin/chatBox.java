@@ -7,8 +7,8 @@ import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 public class chatBox {
-
-    final static String apiKey = System.getenv("GROQ_API_KEY"); // replace with actual api key
+    private static final String apiKey = System.getenv("API_KEY");
+    String url = System.getenv("API_URL");
 
     public static void chat(TelemetryRow t) throws Exception {
         System.out.println("Welcome to AI Assistant");
@@ -17,13 +17,13 @@ public class chatBox {
         do {
             System.out.print("Ask: ");
             str = sc.nextLine();
-            String prompt = "You are a laptop digital twin assistant.\n"
-                    + "CPU: " + t.getCpuLoad() + "%\n"
-                    + "Temperature: " + t.getTemperature() + "°C\n"
-                    + "Battery: " + t.getBatteryLevel() + "%\n"
-                    + "Answer the user's question using telemetry only if relevant.\n"
-                    + "If the question is general (hi, hello, good morning, thank you, etc.), respond normally.\n"
-                    + "Question: " + str;
+            String prompt = "You are a laptop digital twin assistant.\n" +
+                    "CPU: " + t.getCpuLoad() + "%\n" +
+                    "Temperature: " + t.getTemperature() + "°C\n" +
+                    "Battery: " + t.getBatteryLevel() + "%\n" +
+                    "Answer the user's question using telemetry only if relevant.\n" +
+                    "If the question is general (hi, hello, good morning, thank you, etc.), respond normally.\n" +
+                    "Question: " + str;
 
             String json = """
             {
@@ -37,7 +37,7 @@ public class chatBox {
                     .replace("\n", "\\n"));
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("GROQ_API_URL")) //replace with groq api url
+                    .uri(URI.create("url"))
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json))
