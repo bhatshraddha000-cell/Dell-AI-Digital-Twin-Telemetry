@@ -7,23 +7,19 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-/**
- * Client for interacting with Groq's Llama 3.3 70B model. Uses OkHttp for HTTP
- * requests and Jackson for JSON handling. API key is loaded from .env file;
- * falls back to a dummy key for testing.
- */
 public class GroqClient {
 
-    private static final String GROQ_API_KEY
-            = System.getenv("GROQ_API_KEY");
-    private static final String MODEL = "llama-3.3-70b-versatile";
+    private static final String GROQ_API_URL
+            = System.getenv("API_URL");
+
+    private static final String MODEL
+            = "llama-3.3-70b-versatile";
 
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
@@ -32,10 +28,13 @@ public class GroqClient {
     public GroqClient() {
         this.client = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
+
         String key = System.getenv("GROQ_API_KEY");
+
         if (key == null || key.isEmpty()) {
-            key = "dummy_key_for_testing"; // fallback to avoid null
+            key = "dummy_key_for_testing";
         }
+
         this.apiKey = key;
     }
 
