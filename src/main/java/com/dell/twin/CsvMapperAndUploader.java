@@ -1,23 +1,35 @@
 package com.dell.twin;
 
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import com.google.gson.Gson;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
-import okhttp3.*;
-import com.google.gson.Gson;
-import io.github.cdimascio.dotenv.Dotenv;
 
-import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class CsvMapperAndUploader {
 
-    private static final Dotenv dotenv = Dotenv.load();
-    private static final String SUPABASE_URL = dotenv.get("SUPABASE_URL");
-    private static final String SUPABASE_KEY = dotenv.get("SUPABASE_KEY");
+    private static final String SUPABASE_URL
+            = System.getenv("SUPABASE_URL");
+
+    private static final String SUPABASE_KEY
+            = System.getenv("SUPABASE_KEY");
     private static final String TABLE_NAME = "telemetry";
 
     private static final OkHttpClient client = new OkHttpClient();

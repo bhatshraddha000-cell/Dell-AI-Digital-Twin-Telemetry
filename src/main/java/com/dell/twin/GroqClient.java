@@ -32,8 +32,7 @@ public class GroqClient {
     public GroqClient() {
         this.client = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
-        Dotenv dotenv = Dotenv.load();
-        String key = dotenv.get("GROQ_API_KEY");
+        String key = System.getenv("GROQ_API_KEY");
         if (key == null || key.isEmpty()) {
             key = "dummy_key_for_testing"; // fallback to avoid null
         }
