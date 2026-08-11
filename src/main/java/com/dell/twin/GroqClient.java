@@ -15,15 +15,15 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * Client for interacting with Groq's Llama 3.3 70B model.
- * Uses OkHttp for HTTP requests and Jackson for JSON handling.
- * API key is loaded from .env file; falls back to a dummy key for testing.
+ * Client for interacting with Groq's Llama 3.3 70B model. Uses OkHttp for HTTP
+ * requests and Jackson for JSON handling. API key is loaded from .env file;
+ * falls back to a dummy key for testing.
  */
-
 public class GroqClient {
 
-    private static final String GROQ_API_URL = Dotenv.load().get("API_URL");
-    private static final String MODEL = "llama-3.3-70b-versatile"; 
+    private static final String GROQ_API_KEY
+            = System.getenv("GROQ_API_KEY");
+    private static final String MODEL = "llama-3.3-70b-versatile";
 
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
@@ -40,20 +40,21 @@ public class GroqClient {
         this.apiKey = key;
     }
 
-    /** Returns true if using the dummy key (useful for offline testing). */
-
+    /**
+     * Returns true if using the dummy key (useful for offline testing).
+     */
     public boolean isDummyKey() {
         return this.apiKey.equals("dummy_key_for_testing");
     }
 
     /**
      * Sends a chat completion request to Groq.
-     * @param systemInstructions  system-level prompt (e.g., role, constraints)
-     * @param userPrompt          user query
+     *
+     * @param systemInstructions system-level prompt (e.g., role, constraints)
+     * @param userPrompt user query
      * @return raw JSON response from the API
      * @throws IOException on network errors
      */
-
     public String askGroq(String systemInstructions, String userPrompt) throws IOException {
         Map<String, String> systemMessage = new HashMap<>();
         systemMessage.put("role", "system");
@@ -91,11 +92,11 @@ public class GroqClient {
 
     /**
      * Extracts the 'content' field from the LLM's JSON response.
-     * @param jsonResponse  raw JSON from Groq
+     *
+     * @param jsonResponse raw JSON from Groq
      * @return the assistant's textual answer
      * @throws IOException if parsing fails
      */
-
     public String parseGroqResponse(String jsonResponse) throws IOException {
         Map<String, Object> responseMap = objectMapper.readValue(jsonResponse, Map.class);
         List<Map<String, Object>> choices = (List<Map<String, Object>>) responseMap.get("choices");
